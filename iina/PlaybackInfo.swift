@@ -190,7 +190,11 @@ class PlaybackInfo {
   var cachedVideoDurationAndProgress: [String: (duration: Double?, progress: Double?)] = [:]
   var cachedMetadata: [String: (title: String?, album: String?, artist: String?)] = [:]
 
-  var thumbnailsReady = false
+  var thumbnailsReady = false {
+    didSet {
+        NotificationCenter.default.post(Notification(name: .iinaThumbnailsReadyStatusChanged, object: player, userInfo: nil))
+    }
+  }
   var thumbnailsProgress: Double = 0
   var thumbnails: [FFThumbnail] = []
 

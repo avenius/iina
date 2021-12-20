@@ -38,6 +38,7 @@ class PlaylistViewController: NSViewController, NSTableViewDataSource, NSTableVi
   private var pendingSwitchRequest: TabViewType?
 
   var playlistChangeObserver: NSObjectProtocol?
+  var thumbnailReadyObserver: NSObjectProtocol?
 
   /** Enum for tab switching */
   enum TabViewType: Int {
@@ -139,6 +140,11 @@ class PlaylistViewController: NSViewController, NSTableViewDataSource, NSTableVi
       to: UserDefaults.standard,
       withKeyPath: Preference.Key.displayThumbnailsForChapters.rawValue,
       options: [.valueTransformerName: NSValueTransformerName.negateBooleanTransformerName])
+    
+    // Listen to thumbnailsready, maybe we need to reload the tableView
+    thumbnailReadyObserver = NotificationCenter.default.addObserver(forName: .iinaThumbnailsReadyStatusChanged, object: player, queue: .main) { _ in
+      self.reloadData(playlist: false, chapters: true)
+    }
   }
 
   override func viewDidAppear() {
@@ -149,6 +155,7 @@ class PlaylistViewController: NSViewController, NSTableViewDataSource, NSTableVi
   }
 
   deinit {
+    NotificationCenter.default.removeObserver(self.thumbnailReadyObserver!)
     NotificationCenter.default.removeObserver(self.playlistChangeObserver!)
   }
 
@@ -586,6 +593,8 @@ class PlaylistViewController: NSViewController, NSTableViewDataSource, NSTableVi
         if Preference.bool(for: .enableThumbnailPreview) && Preference.bool(for: .displayThumbnailsForChapters) {
           if player.info.thumbnailsReady, let image = player.info.getThumbnail(forSecond: chapter.time.second)?.image {
             cellView.setPreviewImage(image)
+          } else {
+            cellView.removePreviewImage()
           }
         }
         return cellView
@@ -935,5 +944,9 @@ class PreviewTableCellView: NSTableCellView {
   
   func setPreviewImage(_ image: NSImage) {
     imageView?.image = image
+  }
+  
+  func removePreviewImage() {
+    imageView?.image = nil
   }
 }
