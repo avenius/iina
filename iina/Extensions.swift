@@ -528,6 +528,35 @@ extension NSImage {
     newImage.unlockFocus()
     return newImage
   }
+  
+  func resize(size: NSSize) -> NSImage? {
+    let frame = NSMakeRect(0, 0, size.width, size.height)
+    
+    guard let rep = self.bestRepresentation(for: frame, context: nil, hints: nil) else {
+      return nil
+    }
+    
+    let img = NSImage(size: size)
+    img.lockFocus()
+    defer { img.unlockFocus() }
+    
+    return rep.draw(in:frame) ? img : nil
+  }
+  
+  func resizeWithAspectRatio(size: NSSize) -> NSImage? {
+    let newSize: NSSize
+    
+    let widthRatio  = size.width / self.size.width
+    let heightRatio = size.height / self.size.height
+    
+    if widthRatio > heightRatio {
+      newSize = NSSize(width: floor(self.size.width * widthRatio), height: floor(self.size.height * widthRatio))
+    } else {
+      newSize = NSSize(width: floor(self.size.width * heightRatio), height: floor(self.size.height * heightRatio))
+    }
+    
+    return self.resize(size: newSize)
+  }
 }
 
 
@@ -567,8 +596,10 @@ extension NSUserInterfaceItemIdentifier {
   static let isChosen = NSUserInterfaceItemIdentifier("IsChosen")
   static let trackId = NSUserInterfaceItemIdentifier("TrackId")
   static let trackName = NSUserInterfaceItemIdentifier("TrackName")
+  static let previewImage = NSUserInterfaceItemIdentifier("PreviewImage")
   static let isPlayingCell = NSUserInterfaceItemIdentifier("IsPlayingCell")
   static let trackNameCell = NSUserInterfaceItemIdentifier("TrackNameCell")
+  static let previewImageCell = NSUserInterfaceItemIdentifier("PreviewImageCell")
   static let key = NSUserInterfaceItemIdentifier("Key")
   static let value = NSUserInterfaceItemIdentifier("Value")
   static let action = NSUserInterfaceItemIdentifier("Action")

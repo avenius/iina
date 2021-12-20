@@ -415,6 +415,11 @@ class MenuController: NSObject, NSMenuDelegate {
       menuItem.tag = index
       menuItem.state = isPlaying ? .on : .off
       menuItem.attributedTitle = NSAttributedString(string: menuTitle, attributes: [.font: NSFont.monospacedDigitSystemFont(ofSize: 0, weight: .regular)])
+      if Preference.bool(for: .enableThumbnailPreview) && Preference.bool(for: .displayThumbnailsForChapters) && info.thumbnailsReady, let image = info.getThumbnail(forSecond: chapter.time.second)?.image {
+        menuItem.image = image.resizeWithAspectRatio(size: NSSize(width: 80, height: 45))
+      } else {
+        menuItem.image = nil
+      }
       chapterMenu.addItem(menuItem)
     }
   }

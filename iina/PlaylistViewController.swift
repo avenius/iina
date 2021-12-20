@@ -132,6 +132,13 @@ class PlaylistViewController: NSViewController, NSTableViewDataSource, NSTableVi
                                                  options: [.activeAlways, .inVisibleRect, .mouseEnteredAndExited, .mouseMoved],
                                                  owner: mainWindow, userInfo: ["obj": 0]))
     }
+    
+    //Binding for TableColumn Thumbnails, this is not settable in Interface Builder
+    chapterTableView.tableColumn(withIdentifier: .previewImage)?.bind(
+      .hidden,
+      to: UserDefaults.standard,
+      withKeyPath: Preference.Key.displayThumbnailsForChapters.rawValue,
+      options: [.valueTransformerName: NSValueTransformerName.negateBooleanTransformerName])
   }
 
   override func viewDidAppear() {
@@ -574,6 +581,14 @@ class PlaylistViewController: NSViewController, NSTableViewDataSource, NSTableVi
         cellView.setTitle(chapter.title.isEmpty ? "Chapter \(row)" : chapter.title)
         cellView.durationTextField.stringValue = "\(chapter.time.stringRepresentation) → \(nextChapterTime.stringRepresentation)"
         return cellView
+      } else if identifier == .previewImage {
+        let cellView = v as! PreviewTableCellView
+        if Preference.bool(for: .enableThumbnailPreview) && Preference.bool(for: .displayThumbnailsForChapters) {
+          if player.info.thumbnailsReady, let image = player.info.getThumbnail(forSecond: chapter.time.second)?.image {
+            cellView.setPreviewImage(image)
+          }
+        }
+        return cellView
       } else {
         return nil
       }
@@ -916,3 +931,9 @@ class ChapterTableCellView: NSTableCellView {
   }
 }
 
+class PreviewTableCellView: NSTableCellView {
+  
+  func setPreviewImage(_ image: NSImage) {
+    imageView?.image = image
+  }
+}

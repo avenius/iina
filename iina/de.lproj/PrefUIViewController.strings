@@ -222,3 +222,6 @@
 
 /* Class = "NSButtonCell"; title = "Initial window size:"; ObjectID = "zOq-Em-wUe"; */
 "zOq-Em-wUe.title" = "Startgröße des Fensters:";
+
+/* Class = "NSButton"; title = "Display thumbnails for chapters"; ObjectID = "fDk-Hz-vhO"; */
+"fDk-Hz-vhO.title" = "Vorschaubilder für Kapitel anzeigen";
